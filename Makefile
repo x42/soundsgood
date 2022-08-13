@@ -43,16 +43,15 @@ PLUGIN_TEMPLATE_FILES   = $(subst template/,,$(wildcard template/*.*))
 PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),build/soundsgood/$(f))
 PLUGIN_GENERATED_FILES += bin/soundsgood.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/soundsgood.lv2/plugin.ttl
+PLUGIN_GENERATED_FILES += bin/soundsgood.lv2/ui.ttl
 
 gen: $(PLUGIN_GENERATED_FILES)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # soundsgood target, for actual building the plugin after its source code has been generated
 
-PLUGIN_TARGETS = ladspa lv2_dsp vst2 vst3
-
 soundsgood: $(PLUGIN_GENERATED_FILES)
-	$(MAKE) $(PLUGIN_TARGETS) -C build/soundsgood -f $(CURDIR)/dpf/Makefile.plugins.mk NAME=soundsgood FILES_DSP=Plugin.cpp
+	$(MAKE) -C plugin
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for faust dsp to plugin code conversion
@@ -69,6 +68,14 @@ FAUSTPP_ARGS = \
 	-Dversion_major=$(VERSION_MAJOR) \
 	-Dversion_minor=$(VERSION_MINOR) \
 	-Dversion_micro=$(VERSION_MICRO)
+
+ifeq ($(MACOS),true)
+FAUSTPP_ARGS += -Duitype=Cocoa
+else ifeq ($(WINDOWS),true)
+FAUSTPP_ARGS += -Duitype=HWND
+else ifeq ($(HAVE_DGL),true)
+FAUSTPP_ARGS += -Duitype=X11
+endif
 
 bin/soundsgood.lv2/%: soundsgood.dsp template/LV2/% faustpp
 	mkdir -p bin/soundsgood.lv2

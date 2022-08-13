@@ -5,6 +5,7 @@
 @prefix opts:    <http://lv2plug.in/ns/ext/options#> .
 @prefix pg:      <http://lv2plug.in/ns/ext/port-groups#> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ui:      <http://lv2plug.in/ns/extensions/ui#> .
 @prefix unit:    <http://lv2plug.in/ns/extensions/units#> .
 
 {% if inputs == 1 or outputs == 1 %}
@@ -35,6 +36,10 @@
     opts:supportedOption bufsize:nominalBlockLength ,
                          bufsize:maxBlockLength ,
                          <http://lv2plug.in/ns/ext/parameters#sampleRate> ;
+
+    {% if uitype is defined %}
+    ui:ui <{{lv2uri}}#DPF_UI> ;
+    {% endif %}
 
     {% for i in range(inputs) %}
     lv2:port [
